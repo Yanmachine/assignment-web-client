@@ -33,21 +33,38 @@ class HTTPResponse(object):
         self.body = body
 
 class HTTPClient(object):
-    #def get_host_port(self,url):
+    def get_host_port(self,url):
+        port = 80
+        if url.port:
+            port = url.port
+        return port
 
     def connect(self, host, port):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((host, port))
+        print("--- Connecting Method ---")
+        try:
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket.connect((host, port))
+        except socket.error as e:
+            print("--- Error Connecting Socket ---")
+            self.close()
+        print("--- Socket Connected! ---")
         return None
 
     def get_code(self, data):
-        return None
+        response_header, _ = data.split('\r\n', 1)
+        print(f"--- response_header = {response_header}")
+        code = response_header.split()[1] + " " + response_header.split()[2] + " " + response_header.split()[3]
+        print(f"--- code = {code}")
+        return code
 
     def get_headers(self,data):
         return None
 
     def get_body(self, data):
-        return None
+        _, body = data.split('\r\n\r\n', 1)
+        print(f"--- Body ==== {body}")
+
+        return body
     
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -68,11 +85,41 @@ class HTTPClient(object):
         return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
+        print("--- GET METHOD ---")
         code = 500
         body = ""
+        parsed_url = urllib.parse.urlparse(url)
+        host = parsed_url.hostname
+        port = self.get_host_port(parsed_url)
+        print(f"Host = {host}")
+        print(f"Port = {port}")
+        print(url)
+        print(parsed_url)
+
+        self.connect(host, port)
+
+        path = parsed_url.path
+
+
+        request = f"GET {path} HTTP/1.1\r\n"
+        request += f"Host: {host}\r\n"
+        request += "Connection: close\r\n\r\n"
+        #Include body?????
+
+        self.sendall(request)
+        
+
+        response = self.recvall(self.socket)
+        print(response)
+
+        code = self.get_code(response)
+        body = self.get_body(response)
+        
+
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
+        print("--- POST METHOD ---")
         code = 500
         body = ""
         return HTTPResponse(code, body)
@@ -86,6 +133,7 @@ class HTTPClient(object):
 if __name__ == "__main__":
     client = HTTPClient()
     command = "GET"
+    print("------ Client Initiated ------")
     if (len(sys.argv) <= 1):
         help()
         sys.exit(1)
