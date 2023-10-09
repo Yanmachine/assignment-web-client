@@ -85,17 +85,12 @@ class HTTPClient(object):
         return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
-        print("--- GET METHOD ---")
+        #content length must be 0, no body
         code = 500
         body = ""
         parsed_url = urllib.parse.urlparse(url)
         host = parsed_url.hostname
         port = self.get_host_port(parsed_url)
-        print(f"Host = {host}")
-        print(f"Port = {port}")
-        print(url)
-        print(parsed_url)
-
         self.connect(host, port)
 
         path = parsed_url.path
@@ -110,12 +105,9 @@ class HTTPClient(object):
         
 
         response = self.recvall(self.socket)
-        print(response)
 
         code = self.get_code(response)
         body = self.get_body(response)
-
-        print(f" C O D E  =  {code} ")
         
         
 
@@ -125,6 +117,39 @@ class HTTPClient(object):
         print("--- POST METHOD ---")
         code = 500
         body = ""
+        parsed_url = urllib.parse.urlparse(url)
+        host = parsed_url.hostname
+        port = self.get_host_port(parsed_url)
+        path = parsed_url.path
+        self.connect(host, port)
+
+        body_message = ""
+
+        if args:
+            body_message = args
+        body_length = len(body_message)
+
+        body_message = str(body_message)
+
+        print(type(body_message))
+        print(body_message)
+
+        request = f"POST {path} HTTP/1.1\r\n"
+        request += f"Host: {host}\r\n"
+        request += f"Content-Type: application/x-www-form-urlencoded\r\n"
+        request += f"Content-Length: {body_length}\r\n"
+        request += "Connection: close\r\n\r\n"
+        request += body_message
+
+
+        self.sendall(request)
+
+        response = self.recvall(self.socket)
+
+        code = self.get_code(response)
+        body = self.get_body(response)
+
+
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
