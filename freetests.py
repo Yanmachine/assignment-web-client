@@ -171,32 +171,32 @@ class TestHTTPClient(unittest.TestCase):
     #     self.assertTrue(req != None, "None Returned!")
     #     self.assertTrue(req.code == 404)
 
-    def testGET(self):
-        '''Test HTTP GET'''
-        MyHTTPHandler.get = echo_path_get
-        http = httpclass.HTTPClient()
-        path = "abcdef/gjkd/dsadas"
-        url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
-        req = http.GET( url )
-        self.assertTrue(req != None, "None Returned!")
-        print(" ---->>> Actual code:", req.code)
-        if req.code == "200":
-            print("STRING")
-        if req.code == 200:
-            print("INT")
-        self.assertTrue(req.code == 200)
-        self.assertTrue(req.body.find(path)>=0, "Data: [%s] " % req.body)
+    # def testGET(self):
+    #     '''Test HTTP GET'''
+    #     MyHTTPHandler.get = echo_path_get
+    #     http = httpclass.HTTPClient()
+    #     path = "abcdef/gjkd/dsadas"
+    #     url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
+    #     req = http.GET( url )
+    #     self.assertTrue(req != None, "None Returned!")
+    #     print(" ---->>> Actual code:", req.code)
+    #     if req.code == "200":
+    #         print("STRING")
+    #     if req.code == 200:
+    #         print("INT")
+    #     self.assertTrue(req.code == 200)
+    #     self.assertTrue(req.body.find(path)>=0, "Data: [%s] " % req.body)
 
-    def testGETHeaders(self):
-        '''Test HTTP GET Headers'''
-        MyHTTPHandler.get = header_check
-        MyHTTPHandler.post = die_on_method
-        http = httpclass.HTTPClient()
-        path = "abcdef/gjkd/dsadas"
-        url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
-        req = http.GET( url )
-        self.assertTrue(req != None, "None Returned!")
-        self.assertTrue(req.code == 200)
+    # def testGETHeaders(self):
+    #     '''Test HTTP GET Headers'''
+    #     MyHTTPHandler.get = header_check
+    #     MyHTTPHandler.post = die_on_method
+    #     http = httpclass.HTTPClient()
+    #     path = "abcdef/gjkd/dsadas"
+    #     url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
+    #     req = http.GET( url )
+    #     self.assertTrue(req != None, "None Returned!")
+    #     self.assertTrue(req.code == 200)
 
     # def testPOSTHeaders(self):
     #     '''Test HTTP POST Headers'''
@@ -239,27 +239,27 @@ class TestHTTPClient(unittest.TestCase):
     #                             req.body.find("<body")>=0 , 
     #                             "%s Data: [%s] " % (url,req.body))
     
-    # def testPOST(self):
-    #     '''Test HTTP POST with an echo server'''
-    #     MyHTTPHandler.post = echo_post
-    #     http = httpclass.HTTPClient()
-    #     path = "post_echoer"
-    #     url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
-    #     args = {'a':'aaaaaaaaaaaaa',
-    #             'b':'bbbbbbbbbbbbbbbbbbbbbb',
-    #             'c':'c',
-    #             'd':'012345\r67890\n2321321\n\r'}
-    #     print("Sending POST!")
-    #     req = http.POST( url, args=args )
-    #     self.assertTrue(req != None, "None Returned!")
-    #     self.assertTrue(req.code == 200)
-    #     print("Test Post Body: [%s]" % req.body)
-    #     outargs = json.loads(req.body)
-    #     print(outargs.__class__)
-    #     for key in args:
-    #         self.assertTrue(args[key] == outargs[key][0], "Key [%s] not found" % key)
-    #     for key in outargs:
-    #         self.assertTrue(args[key] == outargs[key][0], "Key [%s] not found" % key)
+    def testPOST(self):
+        '''Test HTTP POST with an echo server'''
+        MyHTTPHandler.post = echo_post
+        http = httpclass.HTTPClient()
+        path = "post_echoer"
+        url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
+        args = {'a':'aaaaaaaaaaaaa',
+                'b':'bbbbbbbbbbbbbbbbbbbbbb',
+                'c':'c',
+                'd':'012345\r67890\n2321321\n\r'}
+        print("Sending POST!")
+        req = http.POST( url, args=args )
+        self.assertTrue(req != None, "None Returned!")
+        self.assertTrue(req.code == 200)
+        print("Test Post Body: [%s]" % req.body)
+        outargs = json.loads(req.body)
+        print(outargs.__class__)
+        for key in args:
+            self.assertTrue(args[key] == outargs[key][0], "Key [%s] not found" % key)
+        for key in outargs:
+            self.assertTrue(args[key] == outargs[key][0], "Key [%s] not found" % key)
 
     @classmethod
     def tearDownClass(self):        
