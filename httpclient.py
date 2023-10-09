@@ -23,7 +23,6 @@ import socket
 import re
 # you may use urllib to encode data appropriately
 import urllib.parse
-import json
 
 def help():
     print("httpclient.py [GET/POST] [URL]\n")
@@ -41,14 +40,12 @@ class HTTPClient(object):
         return port
 
     def connect(self, host, port):
-        print("--- Connecting Method ---")
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((host, port))
         except socket.error as e:
             print("--- Error Connecting Socket ---")
             self.close()
-        print("--- Socket Connected! ---")
         return None
 
     def get_code(self, data):
@@ -59,11 +56,14 @@ class HTTPClient(object):
         return int(code)
 
     def get_headers(self,data):
+        headers = {}
+        spliced = data.split("")
+        # TODO Finish this function and rework get_code and get_body
         return None
 
     def get_body(self, data):
         _, body = data.split('\r\n\r\n', 1)
-        print(f"--- Body ==== {body}")
+        print(f"--- Response Body: {body}")
 
         return body
     
@@ -122,10 +122,11 @@ class HTTPClient(object):
         path = parsed_url.path
         self.connect(host, port)
 
-        body_message = ""
-
         if args:
-            body_message = json.dumps(args)
+            body_message = urllib.parse.urlencode(args) #urllib.parse.parse_qs, echo server expecting url encoded query
+        else:
+            body_message = ""
+
         body_length = len(body_message)
 
         #body_message = str(body_message)
@@ -135,11 +136,13 @@ class HTTPClient(object):
 
         request = f"POST {path} HTTP/1.1\r\n"
         request += f"Host: {host}\r\n"
-        request += f"Content-Type: application/x-www-form-urlencoded\r\n"
+        request += f"Content-Type: application/json\r\n"
         request += f"Content-Length: {body_length}\r\n"
         request += "Connection: close\r\n\r\n"
         request += body_message
 
+        print(f"---REQUEST:\n {request}\n")
+        print("-------------------------------------")
 
         self.sendall(request)
 
