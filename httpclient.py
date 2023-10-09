@@ -51,11 +51,11 @@ class HTTPClient(object):
         return None
 
     def get_code(self, data):
-        response_header, _ = data.split('\r\n', 1)
+        response_header = data.split('\r\n', 1)[0]
         print(f"--- response_header = {response_header}")
-        code = response_header.split()[1] + " " + response_header.split()[2] + " " + response_header.split()[3]
+        _, code, _ = response_header.split(' ', 2)
         print(f"--- code = {code}")
-        return code
+        return int(code)
 
     def get_headers(self,data):
         return None
@@ -114,6 +114,9 @@ class HTTPClient(object):
 
         code = self.get_code(response)
         body = self.get_body(response)
+
+        print(f" C O D E  =  {code} ")
+        
         
 
         return HTTPResponse(code, body)
