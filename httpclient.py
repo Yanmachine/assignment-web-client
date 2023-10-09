@@ -23,6 +23,7 @@ import socket
 import re
 # you may use urllib to encode data appropriately
 import urllib.parse
+import json
 
 def help():
     print("httpclient.py [GET/POST] [URL]\n")
@@ -91,30 +92,28 @@ class HTTPClient(object):
         parsed_url = urllib.parse.urlparse(url)
         host = parsed_url.hostname
         port = self.get_host_port(parsed_url)
+
+        path = parsed_url.path or '/' #if there is no specified path, select root
+
         self.connect(host, port)
 
-        path = parsed_url.path
-
+        print(f"------- PATH: {path}")
+        print(f"------- Parsed URL: {parsed_url}")
 
         request = f"GET {path} HTTP/1.1\r\n"
         request += f"Host: {host}\r\n"
         request += "Connection: close\r\n\r\n"
-        #Include body?????
 
         self.sendall(request)
-        
 
         response = self.recvall(self.socket)
 
         code = self.get_code(response)
         body = self.get_body(response)
         
-        
-
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
-        print("--- POST METHOD ---")
         code = 500
         body = ""
         parsed_url = urllib.parse.urlparse(url)
@@ -126,13 +125,13 @@ class HTTPClient(object):
         body_message = ""
 
         if args:
-            body_message = args
+            body_message = json.dumps(args)
         body_length = len(body_message)
 
-        body_message = str(body_message)
+        #body_message = str(body_message)
 
-        print(type(body_message))
-        print(body_message)
+        print(f" type == {type(body_message)}")
+        print(f" body == {body_message}")
 
         request = f"POST {path} HTTP/1.1\r\n"
         request += f"Host: {host}\r\n"
@@ -145,6 +144,8 @@ class HTTPClient(object):
         self.sendall(request)
 
         response = self.recvall(self.socket)
+        
+        print(f"Response: {response}")
 
         code = self.get_code(response)
         body = self.get_body(response)
