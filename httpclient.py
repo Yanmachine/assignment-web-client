@@ -105,6 +105,9 @@ class HTTPClient(object):
         code = self.get_code(response)
         body = self.get_body(response)
 
+        #user story: As a user when I GET or POST I want the result printed to stdout
+        print(f"HTTP request response: \n {response}")
+
         self.close()
         
         return HTTPResponse(code, body)
@@ -138,6 +141,9 @@ class HTTPClient(object):
 
         code = self.get_code(response)
         body = self.get_body(response)
+
+        #user story: As a user when I GET or POST I want the result printed to stdout
+        print(f"HTTP request response:\n {response}")
 
         self.close()
 
