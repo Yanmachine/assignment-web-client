@@ -179,11 +179,6 @@ class TestHTTPClient(unittest.TestCase):
         url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
         req = http.GET( url )
         self.assertTrue(req != None, "None Returned!")
-        print(" ---->>> Actual code:", req.code)
-        if req.code == "200":
-            print("STRING")
-        if req.code == 200:
-            print("INT")
         self.assertTrue(req.code == 200)
         self.assertTrue(req.body.find(path)>=0, "Data: [%s] " % req.body)
 

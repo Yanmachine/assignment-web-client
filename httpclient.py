@@ -50,9 +50,7 @@ class HTTPClient(object):
 
     def get_code(self, data):
         response_header = data.split('\r\n', 1)[0]
-        print(f"--- response_header = {response_header}")
         _, code, _ = response_header.split(' ', 2)
-        print(f"--- code = {code}")
         return int(code)
 
     def get_headers(self,data):
@@ -63,7 +61,6 @@ class HTTPClient(object):
 
     def get_body(self, data):
         _, body = data.split('\r\n\r\n', 1)
-        print(f"--- Response Body: {body}")
 
         return body
     
@@ -97,9 +94,6 @@ class HTTPClient(object):
 
         self.connect(host, port)
 
-        print(f"------- PATH: {path}")
-        print(f"------- Parsed URL: {parsed_url}")
-
         request = f"GET {path} HTTP/1.1\r\n"
         request += f"Host: {host}\r\n"
         request += "Connection: close\r\n\r\n"
@@ -120,7 +114,7 @@ class HTTPClient(object):
         host = parsed_url.hostname
         port = self.get_host_port(parsed_url)
         path = parsed_url.path
-        self.connect(host, port)
+        self.connect(host, port) 
 
         if args:
             body_message = urllib.parse.urlencode(args) #urllib.parse.parse_qs, echo server expecting url encoded query
@@ -129,11 +123,6 @@ class HTTPClient(object):
 
         body_length = len(body_message)
 
-        #body_message = str(body_message)
-
-        print(f" type == {type(body_message)}")
-        print(f" body == {body_message}")
-
         request = f"POST {path} HTTP/1.1\r\n"
         request += f"Host: {host}\r\n"
         request += f"Content-Type: application/json\r\n"
@@ -141,14 +130,9 @@ class HTTPClient(object):
         request += "Connection: close\r\n\r\n"
         request += body_message
 
-        print(f"---REQUEST:\n {request}\n")
-        print("-------------------------------------")
-
         self.sendall(request)
 
         response = self.recvall(self.socket)
-        
-        print(f"Response: {response}")
 
         code = self.get_code(response)
         body = self.get_body(response)
@@ -165,7 +149,6 @@ class HTTPClient(object):
 if __name__ == "__main__":
     client = HTTPClient()
     command = "GET"
-    print("------ Client Initiated ------")
     if (len(sys.argv) <= 1):
         help()
         sys.exit(1)
