@@ -40,29 +40,27 @@ class HTTPClient(object):
         return port
 
     def connect(self, host, port):
-        print("--- Connecting Method ---")
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((host, port))
         except socket.error as e:
             print("--- Error Connecting Socket ---")
             self.close()
-        print("--- Socket Connected! ---")
         return None
 
     def get_code(self, data):
         response_header = data.split('\r\n', 1)[0]
-        print(f"--- response_header = {response_header}")
         _, code, _ = response_header.split(' ', 2)
-        print(f"--- code = {code}")
         return int(code)
 
     def get_headers(self,data):
+        headers = {}
+        spliced = data.split("")
+        # TODO Finish this function and rework get_code and get_body
         return None
 
     def get_body(self, data):
         _, body = data.split('\r\n\r\n', 1)
-        print(f"--- Body ==== {body}")
 
         return body
     
@@ -91,56 +89,51 @@ class HTTPClient(object):
         parsed_url = urllib.parse.urlparse(url)
         host = parsed_url.hostname
         port = self.get_host_port(parsed_url)
+
+        path = parsed_url.path or '/' #if there is no specified path, select root
+
         self.connect(host, port)
-
-        path = parsed_url.path
-
 
         request = f"GET {path} HTTP/1.1\r\n"
         request += f"Host: {host}\r\n"
         request += "Connection: close\r\n\r\n"
-        #Include body?????
 
         self.sendall(request)
-        
 
         response = self.recvall(self.socket)
 
         code = self.get_code(response)
         body = self.get_body(response)
-        
-        
 
+        #user story: As a user when I GET or POST I want the result printed to stdout
+        print(f"HTTP request response: \n {response}")
+
+        self.close()
+        
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
-        print("--- POST METHOD ---")
         code = 500
         body = ""
         parsed_url = urllib.parse.urlparse(url)
         host = parsed_url.hostname
         port = self.get_host_port(parsed_url)
         path = parsed_url.path
-        self.connect(host, port)
-
-        body_message = ""
+        self.connect(host, port) 
 
         if args:
-            body_message = args
+            body_message = urllib.parse.urlencode(args) #urllib.parse.parse_qs, echo server expecting url encoded query
+        else:
+            body_message = ""
+
         body_length = len(body_message)
-
-        body_message = str(body_message)
-
-        print(type(body_message))
-        print(body_message)
 
         request = f"POST {path} HTTP/1.1\r\n"
         request += f"Host: {host}\r\n"
-        request += f"Content-Type: application/x-www-form-urlencoded\r\n"
+        request += f"Content-Type: application/json\r\n"
         request += f"Content-Length: {body_length}\r\n"
         request += "Connection: close\r\n\r\n"
         request += body_message
-
 
         self.sendall(request)
 
@@ -149,6 +142,10 @@ class HTTPClient(object):
         code = self.get_code(response)
         body = self.get_body(response)
 
+        #user story: As a user when I GET or POST I want the result printed to stdout
+        print(f"HTTP request response:\n {response}")
+
+        self.close()
 
         return HTTPResponse(code, body)
 
@@ -161,7 +158,6 @@ class HTTPClient(object):
 if __name__ == "__main__":
     client = HTTPClient()
     command = "GET"
-    print("------ Client Initiated ------")
     if (len(sys.argv) <= 1):
         help()
         sys.exit(1)
