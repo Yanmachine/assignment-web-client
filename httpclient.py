@@ -33,6 +33,9 @@ class HTTPResponse(object):
         self.body = body
 
 class HTTPClient(object):
+
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"
+
     def get_host_port(self,url):
         port = 80
         if url.port:
@@ -96,6 +99,7 @@ class HTTPClient(object):
 
         request = f"GET {path} HTTP/1.1\r\n"
         request += f"Host: {host}\r\n"
+        request += f"User-Agent: {self.user_agent}\r\n"
         request += "Connection: close\r\n\r\n"
 
         self.sendall(request)
@@ -130,6 +134,7 @@ class HTTPClient(object):
 
         request = f"POST {path} HTTP/1.1\r\n"
         request += f"Host: {host}\r\n"
+        request += f"User-Agent: {self.user_agent}\r\n"
         request += f"Content-Type: application/x-www-form-urlencoded\r\n"
         request += f"Content-Length: {body_length}\r\n"
         request += "Connection: close\r\n\r\n"
