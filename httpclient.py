@@ -130,7 +130,7 @@ class HTTPClient(object):
 
         request = f"POST {path} HTTP/1.1\r\n"
         request += f"Host: {host}\r\n"
-        request += f"Content-Type: application/json\r\n"
+        request += f"Content-Type: application/x-www-form-urlencoded\r\n"
         request += f"Content-Length: {body_length}\r\n"
         request += "Connection: close\r\n\r\n"
         request += body_message
